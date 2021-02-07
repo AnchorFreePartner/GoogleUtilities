@@ -22,6 +22,11 @@ NSString *const kGULKeychainUtilsErrorDomain = @"com.gul.keychain.ErrorDomain";
 
 + (nullable NSData *)getItemWithQuery:(NSDictionary *)query
                                 error:(NSError *_Nullable *_Nullable)outError {
+#if TARGET_OS_OSX
+    return [NSUserDefaults.standardUserDefaults
+     objectForKey:query[(__bridge id)kSecAttrAccount]];
+#endif
+    
   NSMutableDictionary *mutableQuery = [query mutableCopy];
 
   mutableQuery[(__bridge id)kSecReturnData] = @YES;
@@ -54,6 +59,12 @@ NSString *const kGULKeychainUtilsErrorDomain = @"com.gul.keychain.ErrorDomain";
 + (BOOL)setItem:(NSData *)item
       withQuery:(NSDictionary *)query
           error:(NSError *_Nullable *_Nullable)outError {
+#if TARGET_OS_OSX
+    [NSUserDefaults.standardUserDefaults
+     setValue:item forKey:query[(__bridge id)kSecAttrAccount]];
+    return YES;
+#endif
+    
   NSData *existingItem = [self getItemWithQuery:query error:outError];
   if (outError && *outError) {
     return NO;
@@ -87,6 +98,12 @@ NSString *const kGULKeychainUtilsErrorDomain = @"com.gul.keychain.ErrorDomain";
 }
 
 + (BOOL)removeItemWithQuery:(NSDictionary *)query error:(NSError *_Nullable *_Nullable)outError {
+#if TARGET_OS_OSX
+    [NSUserDefaults.standardUserDefaults
+     removeObjectForKey:query[(__bridge id)kSecAttrAccount]];
+    return YES;
+#endif
+    
   OSStatus status = SecItemDelete((__bridge CFDictionaryRef)query);
 
   if (status == noErr || status == errSecItemNotFound) {
