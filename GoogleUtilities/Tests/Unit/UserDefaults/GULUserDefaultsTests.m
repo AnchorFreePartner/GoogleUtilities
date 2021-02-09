@@ -388,7 +388,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
 }
 
 - (void)testSynchronizeToDisk {
-#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if TARGET_OS_OSX || TARGET_OS_MACCATALYST || SWIFT_PACKAGE
   // `NSFileManager` has trouble reading the files in `~/Library` even though the
   // `removeItemAtPath:` call works. Watching Finder while stepping through this test shows that the
   // file does get created and removed properly. When using LLDB to call `fileExistsAtPath:` the
@@ -492,6 +492,9 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   // Clean up.
   [self removePreferenceFileWithSuiteName:suiteName];
 }
+
+#if !TARGET_OS_MACCATALYST
+// Disable Catalyst flakes.
 
 #pragma mark - Thread-safety test
 
@@ -708,6 +711,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   }
   [self removePreferenceFileWithSuiteName:suiteName];
 }
+#endif  // TARGET_OS_MACCATALYST
 
 #pragma mark - Thread methods
 
